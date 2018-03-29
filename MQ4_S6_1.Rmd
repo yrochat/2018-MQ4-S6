@@ -1,0 +1,387 @@
+---
+title: "Méthodes Quantitatives IV, semaine 6, Partie 1"
+author: "Yannick Rochat"
+date: "29 mars 2018"
+output:
+  slidy_presentation: default
+  html_notebook: default
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+## Structures de contrôle et fonctions apply
+
+#### if (else)
+
+```{r}
+a <- runif(1)
+if (a > 0.5) print("a est situé entre 0.5 et 1")
+if (a <= 0.5) print("a est situé entre 0 et 0.5")
+```
+
+---
+
+```{r}
+a <- runif(1)
+if (a > 0.5) print("a est situé entre 0.5 et 1") else
+  print("a est situé entre 0 et 0.5")
+```
+
+--- 
+
+#### for
+
+```{r}
+for (i in 1:26) print(LETTERS[i])
+```
+
+----
+
+```{r}
+LETTERS[1:26]
+```
+
+----
+
+```{r}
+v <- runif(10)
+v
+```
+
+----
+
+```{r}
+for (i in 1:10) {
+  if (v[i] > 0.5) 
+    print("Le nombre est situé entre 0.5 et 1") 
+  else
+    print("Le nombre est situé entre 0 et 0.5")
+}
+```
+
+----
+
+#### Les fonctions apply
+
+```{r}
+??apply
+```
+
+apply, lapply, sapply, tapply, mapply…
+
+Que font toutes ces fonctions ?
+
+----
+
+```{r}
+sapply(v, 
+       FUN = function(x) {
+         if (x > 0.5) 
+           return("Le nombre est situé entre 0.5 et 1") 
+         else 
+           return("Le nombre est situé entre 0 et 0.5")
+         })
+```
+
+
+----
+
+
+Les deux exemples suivants sont tirés du manuel de R.
+
+```{r}
+x <- list(a = 1:10, beta = exp(-3:3), logic = c(TRUE,FALSE,FALSE,TRUE))
+## compute the list mean for each list element
+lapply(x, mean)
+```
+
+----
+
+```{r}
+## median and quartiles for each list element
+lapply(x, quantile, probs = 1:9/10)
+
+
+```
+
+----
+
+Le package plyr offre une meilleure gestion des applications de fonctions sur toutes sortes d'objets dans R.
+
+La quatorzième slide d'une présentation de son auteur, Hadley Wickham, résume très bien comment ce package résout le problème.
+
+Cliquer sur le lien suivant pour accéder à [la présentation](http://courses.had.co.nz/09-user/slides/04-wrapup.pdf).
+
+----
+
+N'hésitez pas à suivre le tutoriel créé par Julien Barnier en cas d'intérêt : http://larmarange.github.io/analyse-R/manipuler-les-donnees-avec-dplyr.html 
+
+----
+
+## Pipes (comme dans Unix)
+
+```{r}
+## Exécuter la commande suivante si le package magrittr n'est pas installé
+## install.packages("magrittr")
+library(magrittr)
+```
+
+----
+
+* Entrer dans la console `help(package="magrittr")`
+* Choisir "User guides, package vignettes and other documentation."
+* Ouvrir la vignette magrittr::magrittr
+
+L'exemple suivant est tiré de cette vignette.
+
+----
+
+```{r}
+  mtcars %>%
+  subset(hp > 100) %>%
+  aggregate(. ~ cyl, data = ., FUN = . %>% mean %>% round(2)) %>%
+  transform(kpl = mpg %>% multiply_by(0.4251)) %>%
+  print
+```
+
+----
+
+```{r}
+mtcars
+```
+
+----
+
+```{r}
+mtcars %>%
+  subset(hp > 100)
+```
+
+----
+
+```{r}
+mtcars %>%
+  subset(hp > 100) %>%
+  aggregate(. ~ cyl, data = ., FUN = . %>% mean %>% round(2))
+```
+
+----
+
+```{r}
+  mtcars %>%
+  subset(hp > 100) %>%
+  aggregate(. ~ cyl, data = ., FUN = . %>% mean %>% round(2)) %>%
+  transform(kpl = mpg %>% multiply_by(0.4251))
+
+```
+
+----
+
+```{r}
+  mtcars %>%
+  subset(hp > 100) %>%
+  aggregate(. ~ cyl, data = ., FUN = . %>% mean %>% round(2)) %>%
+  transform(kpl = mpg %>% multiply_by(0.4251)) %>%
+  print
+
+```
+
+----
+
+```{r}
+car_data <-  
+  mtcars %>%
+  subset(hp > 100) %>%
+  aggregate(. ~ cyl, data = ., FUN = . %>% mean %>% round(2)) %>%
+  transform(kpl = mpg %>% multiply_by(0.4251)) %>%
+  print
+
+```
+
+----
+
+```{r}
+car_data
+```
+
+
+
+## Matrices et calcul matriciel
+
+#### Une matrice
+
+```{r}
+x <- c(1,2,3,4,5,6)
+A <- matrix(x, c(2,3),byrow = T) ## ou matrix(x,2,3,byrow=T) 
+A
+```
+
+----
+
+#### Manipulation de matrices
+
+```{r}
+a = c(1,2,3)
+b = c(4,5,6)
+C = rbind(a,b) ## concaténation par ligne 
+C
+```
+
+----
+
+```{r}
+D = cbind(a,b) ## concaténation par colonne
+D
+```
+
+----
+
+```{r}
+diag(2) ## création de la matrice identité de dimension 2
+```
+
+----
+
+```{r}
+diag(c(1,2,3)) ## création d’une matrice contenant 1,2 et 3 sur la diagonale
+```
+
+----
+
+```{r}
+A
+A[2,2] ## élément à la deuxième ligne, deuxième colonne.
+```
+
+----
+
+```{r}
+A[,3] ## la troisième colonne de A
+```
+
+----
+
+```{r}
+A[2,A[1,]<=2] ## éléments sur la deuxième ligne, en ne prenant que les colonnes dont l’élément sur la première ligne est plus petit ou égal à 2
+```
+
+----
+
+```{r}
+A[1,]
+A[1,]<=2
+```
+
+----
+
+```{r}
+D[2,2] = 0 ## modification de l’élément d’indice (2,2)
+D
+```
+
+----
+
+```{r}
+D[,1] = c(0,0,1) ## modification de la première colonne
+D
+```
+
+----
+
+```{r}
+E = matrix(1:4,2,2)
+F = matrix(3:6,2,2)
+E+F
+```
+
+----
+
+```{r}
+E * c(10,100)
+```
+
+----
+
+#### Multiplication matricielle
+
+```{r}
+E %*% F
+E %*% c(2,3)
+```
+
+----
+
+#### Transposition
+
+```{r}
+t(A)
+```
+
+----
+
+#### Les dimensions de la matrice
+
+```{r}
+dim(A)
+```
+
+----
+
+#### Calcul du déterminant
+
+```{r}
+P = matrix(c(12,34,56,78),c(2,2))
+P
+det(P)
+```
+
+----
+
+#### Inversion d'une matrice
+
+```{r}
+solve(P)
+```
+
+
+----
+
+```{r}
+P %*% solve(P)
+```
+
+----
+
+```{r}
+P %*% solve(P) == diag(2) ## Attention aux approximations cachées
+```
+
+----
+
+#### Valeurs et vecteurs propres
+
+```{r}
+eigen(P)
+```
+
+----
+
+#### Y accéder directement
+
+```{r}
+eigen(P)$values
+eigen(P)$vectors ## vecteurs propres en colonne
+```
+
+----
+
+```{r}
+apply(A,2,mean) ## moyenne des colonnes
+```
+
+----
+
+```{r}
+apply(A,1,sum) ## somme des lignes
+```
+
